@@ -4,7 +4,7 @@
 use yii\helpers\Url;
 use yii\helpers\Html;
 
-
+//link to the file to be downloaded
 $itemDownload = Yii::getAlias('@web') . '/uploads/file.zip';
 ?>
 
@@ -24,6 +24,7 @@ $itemDownload = Yii::getAlias('@web') . '/uploads/file.zip';
     <div class="col-md-6">
         Filename.zip
         Size 20MB
+
     </div>
     <div class="col-md-6">
         <!-- file download here -->

@@ -177,12 +177,13 @@ class SiteController extends Controller
      *
      * I will need to move to a live domain and cleanup the URL for better and roust evaluation
      */
-    public function actionResult()
+    public function actionResult($status,$token)
     {
-        $status = isset($_GET['status']) ? $_GET['status'] : false;
-        $token = isset($_GET['token']) ? $_GET['token'] : null;
+        //$status = isset($_GET['status']) ? $_GET['status'] : false;
+        //$token = isset($_GET['token']) ? $_GET['token'] : null;
 //lest check the success status
-        if ($status || $status == 'true') {
+
+        if ($status = true) {
             Yii::$app->getSession()->setFlash('success', 'Item purchased successfully, please click on the link to download');
             return $this->redirect(['download']);
         }
