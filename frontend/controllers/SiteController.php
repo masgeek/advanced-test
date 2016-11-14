@@ -86,7 +86,7 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays paypal purchase page.
+     * Displays paypal purchase page. page only has a button
      *
      * @return mixed
      */
@@ -95,6 +95,11 @@ class SiteController extends Controller
         return $this->render('purchase');
     }
 
+    /**
+     *This action allows the processing of the paypal payment via REST API
+     *
+     * for now all parameters are hardcoded but we will need to pull this data from a database or some other dynamic source
+     */
     public function actionPaypal()
     {
         //initalize the paypal extension so that we can get teh default parameters
@@ -154,6 +159,12 @@ class SiteController extends Controller
 
     }
 
+    /**
+     * Open teh view for downloading teh paid for file
+     * @return string
+     *
+     *
+     */
     public function actionDownload()
     {
         return $this->render('download');
