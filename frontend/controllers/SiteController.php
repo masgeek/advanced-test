@@ -2,7 +2,6 @@
 namespace frontend\controllers;
 
 
-
 use PayPal\Api\RedirectUrls;
 use Yii;
 use yii\base\InvalidParamException;
@@ -42,7 +41,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup', 'purchase', 'paypal'],
+                'only' => ['logout', 'signup', 'purchase', 'paypal', 'result', 'download'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
@@ -50,7 +49,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout', 'purchase', 'paypal'],
+                        'actions' => ['logout', 'purchase', 'paypal', 'result', 'download'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -103,15 +102,15 @@ class SiteController extends Controller
 
     public function actionPaypal()
     {
-        /* lets redirect to the paypal portal */
+        //initalize the paypal extension so that we can get teh default parameters
         Yii::$app->paypal->init();
         $apiContext = Yii::$app->paypal->getApiContext();
 
         $payer = new Payer();
-        $payer->setPaymentMethod("paypal");
+        $payer->setPaymentMethod("paypal"); //method is by pauypal account
 
 
-        $item1 = new \PayPal\Api\Item();
+        $item1 = new \PayPal\Api\Item(); //set item details
         $item1->setName('Software')
             ->setCurrency('USD')
             ->setQuantity(1)
@@ -120,12 +119,12 @@ class SiteController extends Controller
         $itemList = new ItemList();
         $itemList->setItems(array($item1));
         $details = new Details();
-        /*$details->setShipping(1.2)
+        /*$details->setShipping(1.2) ///no need for shipping on thiss one its a digitl good
             ->setTax(1.3)
             ->setSubtotal(17.50);*/
         $amount = new Amount();
         $amount->setCurrency("USD")
-            ->setTotal(10)
+            ->setTotal(10)//set the amount
             ->setDetails($details);
 
         $transaction = new Transaction();
@@ -134,11 +133,11 @@ class SiteController extends Controller
             ->setDescription("Payment description")
             ->setInvoiceNumber(uniqid());
 
-        $baseUrl = 'http://www.tsobu.co.ke';//getBaseUrl();
+        $baseUrl = 'http://www.tsobu.co.ke';//getBaseUrl(); //we will need to host it so that the redirect after payment works okay
 
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl("$baseUrl/OrderGet.php?success=true")
-            ->setCancelUrl("$baseUrl/OrderGet.php?success=false");
+        $redirectUrls->setReturnUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result?status=true")
+            ->setCancelUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result?status=false");
 
         $payment = new Payment();
         $payment->setIntent("sale")
@@ -148,7 +147,6 @@ class SiteController extends Controller
         $request = clone $payment;
 
         try {
-
             $payment->create($apiContext);
         } catch (Exception $ex) {
             ResultPrinter::printError("Created Payment Order Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
@@ -156,8 +154,28 @@ class SiteController extends Controller
         }
         $approvalUrl = $payment->getApprovalLink();
 
-        echo Url::base();
-            var_dump($approvalUrl);
+        //now let us redirect to the approval URL to allow the client to pay
+        $this->redirect($approvalUrl);
+
+    }
+
+    public function actionDownload()
+    {
+        return $this->render('download');
+    }
+
+    public function actionResult()
+    {
+        $status = isset($_GET['status']) ? $_GET['status'] : false;
+        $token = isset($_GET['token']) ? $_GET['token'] : null;
+//lest check the success status
+        if ($status || $status == 'true') {
+            Yii::$app->getSession()->setFlash('success', 'Item purchased successfully, please click on the link to download');
+            return $this->redirect(['download']);
+        }
+        //go back to the main page and say it was cancelled
+        Yii::$app->getSession()->setFlash('warning', 'You have cancelled the transaction');
+        $this->redirect(['purchase']);
     }
 
     /**
@@ -191,39 +209,6 @@ class SiteController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return mixed
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
-                Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
-            } else {
-                Yii::$app->session->setFlash('error', 'There was an error sending email.');
-            }
-
-            return $this->refresh();
-        } else {
-            return $this->render('contact', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Displays about page.
-     *
-     * @return mixed
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
     }
 
     /**
