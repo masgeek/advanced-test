@@ -11,10 +11,10 @@ $paypalAction = Url::toRoute(['/site/paypal']);
 <!-- this will show the flash messages-->
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
-        <h2>Kindly purchase to download the file</h2>
+        <h2 class="text-center">Kindly purchase to download the file</h2>
     </div>
 </div>
-<div>
+<div class="row">
     <div class="col-md-6">
         <!-- paypal button here -->
     </div>
