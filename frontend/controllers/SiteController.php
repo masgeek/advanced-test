@@ -39,7 +39,7 @@ class SiteController extends Controller
                 'only' => ['logout', 'signup', 'purchase', 'paypal', 'result', 'download'],
                 'rules' => [
                     [
-                        'actions' => ['signup'],
+                        'actions' => ['signup','result'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -119,7 +119,7 @@ class SiteController extends Controller
         $itemList = new ItemList();
         $itemList->setItems(array($item1));
         $details = new Details();
-        /*$details->setShipping(1.2) ///no need for shipping on thiss one its a digitl good
+        /*$details->setShipping(1.2) ///no need for shipping on this one its a digitl good
             ->setTax(1.3)
             ->setSubtotal(17.50);*/
         $amount = new Amount();
@@ -133,11 +133,11 @@ class SiteController extends Controller
             ->setDescription("Payment description")
             ->setInvoiceNumber(uniqid());
 
-        $baseUrl = 'http://www.tsobu.co.ke';//getBaseUrl(); //we will need to host it so that the redirect after payment works okay
+        $baseUrl = 'http://127.0.0.1:8070';//getBaseUrl(); //we will need to host it so that the redirect after payment works okay
 
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result?status=true")
-            ->setCancelUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result?status=false");
+        $redirectUrls->setReturnUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result&status=true")
+            ->setCancelUrl("$baseUrl/advanced-test/frontend/web/index.php?r=site/result&status=false");
 
         $payment = new Payment();
         $payment->setIntent("sale")
