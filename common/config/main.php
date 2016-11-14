@@ -10,11 +10,12 @@ return [
             'class'        => 'kongoon\yii2\paypal\Paypal',
             'clientId'     => 'AQymVlI9wso_vCWTOUZXoqQUdg78w3_Mz8VmNWms7eSJYXf9B7UAh4kel-SggfCaZ6oORqXEjKaBGuBo',
             'clientSecret' => 'EIHkGryugLStmJgZP1uwEBKXb5q8nj6JAzjmyxlJdMqprZSbS-gTGTimh2VPwVb-KrmrqHSKaj_69ZLM',
+            'currency' => 'USD',
             'isProduction' => false,
             // This is config file for the PayPal system
             'config'       => [
                 'http.ConnectionTimeOut' => 30,
-                'http.Retry'             => 1, //retry only once
+                'http.Retry'             => 2, //retry only once
                 'mode'                   => \kongoon\yii2\paypal\Paypal::MODE_SANDBOX,    // sandbox | live
                 'log.LogEnabled'         => YII_DEBUG ? 1 : 0, //based on our environment logs will b enabled or not
                 'log.FileName'           => '@runtime/logs/paypal.log', //logs directory

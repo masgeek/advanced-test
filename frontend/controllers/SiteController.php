@@ -1,16 +1,13 @@
 <?php
 namespace frontend\controllers;
 
-use PayPal\Api\Address;
-use PayPal\Api\Amount;
-use PayPal\Api\CreditCard;
-use PayPal\Api\Details;
-use PayPal\Api\FundingInstrument;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\Transaction;
+
+
+use PayPal\Api\RedirectUrls;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\helpers\Url;
+use yii\rbac\Item;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -22,6 +19,15 @@ use frontend\models\SignupForm;
 use frontend\models\ContactForm;
 
 use kongoon\yii2\paypal\Paypal;
+use PayPal\Api\Address;
+use PayPal\Api\Amount;
+use PayPal\Api\CreditCard;
+use PayPal\Api\Details;
+use PayPal\Api\FundingInstrument;
+use PayPal\Api\Payer;
+use PayPal\Api\Payment;
+use PayPal\Api\Transaction;
+use PayPal\Api\ItemList;
 
 /**
  * Site controller
@@ -102,31 +108,56 @@ class SiteController extends Controller
         $apiContext = Yii::$app->paypal->getApiContext();
 
         $payer = new Payer();
-        $payer->setPaymentMethod('paypal');
+        $payer->setPaymentMethod("paypal");
 
 
+        $item1 = new \PayPal\Api\Item();
+        $item1->setName('Software')
+            ->setCurrency('USD')
+            ->setQuantity(1)
+            ->setPrice(10);
 
+        $itemList = new ItemList();
+        $itemList->setItems(array($item1));
+        $details = new Details();
+        /*$details->setShipping(1.2)
+            ->setTax(1.3)
+            ->setSubtotal(17.50);*/
         $amount = new Amount();
-        $amount->setCurrency('USD');
-        $amount->setTotal('7.47');
+        $amount->setCurrency("USD")
+            ->setTotal(10)
+            ->setDetails($details);
 
         $transaction = new Transaction();
-        $transaction->setAmount($amount);
-        $transaction->setDescription('This is the payment transaction description.');
+        $transaction->setAmount($amount)
+            ->setItemList($itemList)
+            ->setDescription("Payment description")
+            ->setInvoiceNumber(uniqid());
+
+        $baseUrl = 'http://www.tsobu.co.ke';//getBaseUrl();
+
+        $redirectUrls = new RedirectUrls();
+        $redirectUrls->setReturnUrl("$baseUrl/OrderGet.php?success=true")
+            ->setCancelUrl("$baseUrl/OrderGet.php?success=false");
 
         $payment = new Payment();
-        $payment->setIntent('sale');
-        $payment->setPayer($payer);
-        $payment->setTransactions(array($transaction));
-        
+        $payment->setIntent("sale")
+            ->setPayer($payer)
+            ->setRedirectUrls($redirectUrls)
+            ->setTransactions(array($transaction));
+        $request = clone $payment;
+
         try {
+
             $payment->create($apiContext);
         } catch (Exception $ex) {
-            echo PaypalError($ex);
+            ResultPrinter::printError("Created Payment Order Using PayPal. Please visit the URL to Approve.", "Payment", null, $request, $ex);
             exit(1);
         }
         $approvalUrl = $payment->getApprovalLink();
 
+        echo Url::base();
+            var_dump($approvalUrl);
     }
 
     /**
