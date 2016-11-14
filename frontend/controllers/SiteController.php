@@ -102,7 +102,7 @@ class SiteController extends Controller
      */
     public function actionPaypal()
     {
-        //initalize the paypal extension so that we can get teh default parameters
+        //initalize the paypal extension so that we can get the default parameters
         Yii::$app->paypal->init();
         $apiContext = Yii::$app->paypal->getApiContext();
 
