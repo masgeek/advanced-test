@@ -21,7 +21,7 @@ $paypalAction = Url::toRoute(['/site/paypal']);
     <div>
         <!-- file download here -->
         <!-- use data from table to determine if its been paid for -->
-        <?= Html::a('<span class="glyphicon glyphicon-list-alt"></span><br/>Purchase Item',
+        <?= Html::a('<span class="glyphicons glyphicons-fees-payments"></span><br/>Purchase Item',
             $paypalAction,['class'=>'btn btn-lg btn-danger btn-block', 'role'=>'button']) ?>
     </div>
 </div>
