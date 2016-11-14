@@ -159,6 +159,13 @@ class SiteController extends Controller
         return $this->render('download');
     }
 
+    /**
+     * @return \yii\web\Response
+     *
+     * process the result from the paypal payment action
+     *
+     * I will need to move to a live domain and cleanup the URL for better and roust evaluation
+     */
     public function actionResult()
     {
         $status = isset($_GET['status']) ? $_GET['status'] : false;
