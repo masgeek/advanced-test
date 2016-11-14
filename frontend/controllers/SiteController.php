@@ -2,11 +2,9 @@
 namespace frontend\controllers;
 
 
-use PayPal\Api\RedirectUrls;
+
 use Yii;
 use yii\base\InvalidParamException;
-use yii\helpers\Url;
-use yii\rbac\Item;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -15,18 +13,15 @@ use common\models\LoginForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
-use frontend\models\ContactForm;
 
-use kongoon\yii2\paypal\Paypal;
-use PayPal\Api\Address;
+
 use PayPal\Api\Amount;
-use PayPal\Api\CreditCard;
 use PayPal\Api\Details;
-use PayPal\Api\FundingInstrument;
 use PayPal\Api\Payer;
 use PayPal\Api\Payment;
 use PayPal\Api\Transaction;
 use PayPal\Api\ItemList;
+use PayPal\Api\RedirectUrls;
 
 /**
  * Site controller
