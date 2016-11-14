@@ -1,6 +1,14 @@
 <?php
 namespace frontend\controllers;
 
+use PayPal\Api\Address;
+use PayPal\Api\Amount;
+use PayPal\Api\CreditCard;
+use PayPal\Api\Details;
+use PayPal\Api\FundingInstrument;
+use PayPal\Api\Payer;
+use PayPal\Api\Payment;
+use PayPal\Api\Transaction;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -12,6 +20,8 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+
+use kongoon\yii2\paypal\Paypal;
 
 /**
  * Site controller
@@ -26,7 +36,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
+                'only' => ['logout', 'signup', 'purchase', 'paypal'],
                 'rules' => [
                     [
                         'actions' => ['signup'],
@@ -34,7 +44,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['logout', 'purchase', 'paypal'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -73,6 +83,50 @@ class SiteController extends Controller
     public function actionIndex()
     {
         return $this->render('index');
+    }
+
+    /**
+     * Displays paypal purchase page.
+     *
+     * @return mixed
+     */
+    public function actionPurchase()
+    {
+        return $this->render('purchase');
+    }
+
+    public function actionPaypal()
+    {
+        /* lets redirect to the paypal portal */
+        Yii::$app->paypal->init();
+        $apiContext = Yii::$app->paypal->getApiContext();
+
+        $payer = new Payer();
+        $payer->setPaymentMethod('paypal');
+
+
+
+        $amount = new Amount();
+        $amount->setCurrency('USD');
+        $amount->setTotal('7.47');
+
+        $transaction = new Transaction();
+        $transaction->setAmount($amount);
+        $transaction->setDescription('This is the payment transaction description.');
+
+        $payment = new Payment();
+        $payment->setIntent('sale');
+        $payment->setPayer($payer);
+        $payment->setTransactions(array($transaction));
+        
+        try {
+            $payment->create($apiContext);
+        } catch (Exception $ex) {
+            echo PaypalError($ex);
+            exit(1);
+        }
+        $approvalUrl = $payment->getApprovalLink();
+
     }
 
     /**
